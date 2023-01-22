@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk.Worker">
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+
+    <!-- This is specifically to keep my LSP server from -->
+      <!-- Annoying me with undefined proto modules :/ -->
+    <NoWarn>39</NoWarn>
+    <UserSecretsId>dotnet-leaderboard_worker-0674db0a-ee13-4700-8cc7-2572d01e1168</UserSecretsId>
+    <RootNamespace>leaderboard_worker</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Protobuf Include="../proto/airdog.proto" GrpcServices="Client" link="airdog.proto" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="src/AccountProvider.fs" />
+    <Compile Include="src/SteamLeaderboardHelper.fs" />
+    <Compile Include="src/Worker.fs" />
+    <Compile Include="src/Program.fs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Grpc-FSharp.Net.Client" Version="0.2.0" />
+    <PackageReference Include="Grpc-FSharp.Tools" Version="0.2.0">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="7.0.0" />
+    <PackageReference Include="SteamKit2" Version="2.4.1" />
+  </ItemGroup>
+</Project>

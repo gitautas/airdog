@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+service Airdog {
+    rpc SyncEntries(stream SyncEntriesReq) returns (SyncEntriesResp);
+}
+
+message Entry {
+    int32 steam_rank = 1;
+    uint64 steam_id = 2;
+    int32 time_ms = 3;
+}
+
+message SyncEntriesReq {
+    int32 leaderboard_id = 1;
+    repeated Entry entry = 2;
+}
+
+message SyncEntriesResp {}
