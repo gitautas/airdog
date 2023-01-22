@@ -7,12 +7,12 @@ open Microsoft.Extensions.Hosting
 open Microsoft.Extensions.Logging
 
 type LeaderboardWorker(logger: ILogger<LeaderboardWorker>, account: Account) =
-    let helper = SteamLeaderboardHelper(account, "LEVELS")
     interface IHostedService with
         member _.StartAsync(ct: CancellationToken) =
             task {
+                let helper = new SteamLeaderboardHelper(account, "LEVELS", ct)
                 logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now)
-                helper.Connect()
+                helper.Connect
                 while not ct.IsCancellationRequested do ()
             }
 
