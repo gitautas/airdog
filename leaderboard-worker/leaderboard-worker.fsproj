@@ -14,10 +14,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="src/AccountProvider.fs" />
-    <Compile Include="src/SteamLeaderboardHelper.fs" />
-    <Compile Include="src/Worker.fs" />
-    <Compile Include="src/Program.fs" />
+    <Compile Include="Source/AccountProvider.fs" />
+    <Compile Include="Source/SteamLeaderboardHelper.fs" />
+    <Compile Include="Source/Worker.fs" />
+    <Compile Include="Source/Program.fs" />
   </ItemGroup>
 
   <ItemGroup>
