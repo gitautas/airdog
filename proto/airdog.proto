@@ -1,5 +1,9 @@
 syntax = "proto3";
 
+package main;
+
+option go_package = "./pb";
+
 service Airdog {
     rpc SyncEntries(stream SyncEntriesReq) returns (SyncEntriesResp);
 }
