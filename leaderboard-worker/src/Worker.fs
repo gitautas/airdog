@@ -13,14 +13,11 @@ type LeaderboardWorker(logger: ILogger<LeaderboardWorker>, account: Account) =
                 let helper = new SteamLeaderboardHelper(account, "LEVELS", ct)
                 logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now)
                 helper.Connect
-                while not ct.IsCancellationRequested do ()
+                helper.Login
+                let entries = helper.GetEntries
+
+                entries
             }
 
         member _.StopAsync(ct: CancellationToken) =
             task { logger.LogInformation("Task cancelled") }
-
-    interface IAsyncDisposable with
-        member _.DisposeAsync() = task { () } |> ValueTask
-
-    interface IDisposable with
-        member _.Dispose() = ()

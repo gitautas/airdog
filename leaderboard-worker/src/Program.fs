@@ -25,12 +25,10 @@ module Program =
         // entries from a file
         let builders =
             account_provider.GetAccounts
-            |> Seq.map (fun account -> createHostBuilder account)
+            |> Seq.map (fun account -> (createHostBuilder account))
 
         for builder in builders do
-            builder.Build().RunAsync() |> ignore
-
-        while true do
-            ()
+            builder.Build().RunAsync()
+            |> Async.AwaitTask |> ignore
 
         0 // exit code
