@@ -1,0 +1,3 @@
+* Airdog
+
+This is the repo for my WIP Neon White leaderboard scraper, REST API and resulting moderation Discord bot.
