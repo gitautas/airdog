@@ -1,5 +1,6 @@
 namespace leaderboard_worker
 
+open System.Threading
 open Microsoft.Extensions.DependencyInjection
 open Microsoft.Extensions.Hosting
 open Microsoft.Extensions.Logging
@@ -16,7 +17,11 @@ module Program =
     [<EntryPoint>]
     let main args =
         // Steam's global rate limit
-        // let rate_limit = 100000
+        let rate_timer = // Amount of minutes to wait between interations
+            100000 // Steam's global daily API rate limit
+            / 300  // Apporoximate amount of requests to query all leaderboards
+            / 24   // Runninig 24/7
+
 
         // This interface returns a sequence of
         // Steam usernames and passwords. This is
@@ -27,8 +32,9 @@ module Program =
             account_provider.GetAccounts
             |> Seq.map (fun account -> (createHostBuilder account))
 
-        for builder in builders do
-            builder.Build().RunAsync()
-            |> Async.AwaitTask |> ignore
+        while true do
+            for builder in builders do
+                builder.Build().Run()
+                Thread.Sleep(rate_timer / Seq.length(builders) * 60000)
 
         0 // exit code
