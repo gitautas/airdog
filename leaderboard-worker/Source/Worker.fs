@@ -14,9 +14,14 @@ type LeaderboardWorker(logger: ILogger<LeaderboardWorker>, account: Account) =
                 logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now)
                 helper.Connect
                 helper.Login
-                let entries = helper.GetEntries
+                let leaderboards = helper.GetEntries
 
-                entries
+                for leaderboard in leaderboards do
+                    printfn $"Entries for leaderboard {leaderboard.ID}"
+                    for entry in leaderboard.Entries do
+                        printfn $"SteamID: {entry.SteamID.ConvertToUInt64()} - {entry.Score}ms"
+
+                logger.LogInformation "Succesfully finished task!"
             }
 
         member _.StopAsync(ct: CancellationToken) =
