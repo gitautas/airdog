@@ -1,9 +1,8 @@
-package respository
+package repository
 
 import (
 	"airdog/pkg/models"
 	"database/sql"
-	"fmt"
 
 	_ "github.com/lib/pq"
 )
@@ -23,7 +22,6 @@ type DatabaseRepository struct {
 }
 
 func CreateDBRepository(conn string) (*DatabaseRepository, error) {
-	fmt.Println("Connecting to Postgres at ", conn)
 	db, err := sql.Open("postgres", conn)
 	if err != nil {
 		return nil, err
