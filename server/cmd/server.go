@@ -36,6 +36,9 @@ func main() {
 		log.Fatalln("Failed to create gRPC controller: ", err.Error())
 	}
 
-	go log.Fatalln(httpController.Serve(8080))
-	go log.Fatalln(grpcController.Serve(8081))
+	go func() {
+		log.Fatalln(grpcController.Serve(8081))
+	}()
+
+	log.Fatalln(httpController.Serve(8080))
 }

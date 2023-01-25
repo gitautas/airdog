@@ -14,7 +14,8 @@ type HttpController struct {
 }
 
 func CreateHttpController(service *service.AirdogService) (*HttpController, error) {
-	app := fiber.New()
+	app := fiber.New(fiber.Config {
+		DisableStartupMessage: true})
 
 	app.Get("/ping", pingHandler)
 
@@ -24,11 +25,11 @@ func CreateHttpController(service *service.AirdogService) (*HttpController, erro
 	}, nil
 }
 
+func pingHandler(c *fiber.Ctx) error {
+	return c.SendString("pong")
+}
+
 func (c *HttpController) Serve(port int) error {
 	log.Println("Listening for HTTP requests on ", port)
 	return c.app.Listen(":" + strconv.Itoa(port))
-}
-
-func pingHandler(c *fiber.Ctx) error {
-	return c.SendString("pong")
 }
