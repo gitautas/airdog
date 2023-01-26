@@ -10,7 +10,6 @@ type Entry struct {
 
 type Leaderboard struct {
 	ID int `json:"id"`
-	LevelID string `json:"levelId"`
 	EntryCount int `json:"entryCount"`
-	Entries []Entry `json:"entries"`
+	Entries []*Entry `json:"entries"`
 }

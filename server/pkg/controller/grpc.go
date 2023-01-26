@@ -3,11 +3,10 @@ package controller
 import (
 	"airdog/pkg/pb"
 	"airdog/pkg/service"
+	"context"
 	"fmt"
-	"io"
 	"log"
 	"net"
-	"time"
 
 	"google.golang.org/grpc"
 )
@@ -31,23 +30,8 @@ func CreateGrpcServer(service *service.AirdogService) (*GrpcServer, error) {
 	return s, nil
 }
 
-func (g *GrpcServer) SyncEntries(stream pb.Airdog_SyncEntriesServer) error {
-	startTime := time.Now()
-	for {
-		leaderboardEntries, err := stream.Recv()
-		if err == io.EOF {
-			endTime := time.Now()
-			log.Println("Finished syncing leaderboards, took ", endTime.Sub(startTime).Seconds(), " seconds.")
-			return stream.SendAndClose(&pb.SyncEntriesResp{})
-		}
-		if err != nil {
-			return err
-		}
-
-		for _, entry := range leaderboardEntries.Entry {
-			log.Println("Entry: ", entry.SteamId, " - ", entry.TimeMs)
-		}
-	}
+func (g *GrpcServer) UpdateLeaderboard(ctx context.Context, req *pb.UpdateLeaderboardReq) (*pb.UpdateLeaderboardResp, error) {
+	return &pb.UpdateLeaderboardResp{}, nil
 }
 
 func (g *GrpcServer) Serve(port int) error {

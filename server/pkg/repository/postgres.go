@@ -7,13 +7,11 @@ import (
 	_ "github.com/lib/pq"
 )
 
-type Databaser interface {
+type LeaderboardDatabaser interface {
+    GetLeaderboard(leaderboardId int) (leaderboard *models.Leaderboard, err error)
     GetEntry(leaderboardId int, steamId uint64) (entry *models.Entry, err error)
-
     AddEntry(entry *models.Entry) (err error)
-
     DeleteEntry(leaderboardId, steamId uint64) (err error)
-
 	UpdateEntry(entry *models.Entry) (err error)
 }
 
@@ -30,6 +28,33 @@ func CreateDBRepository(conn string) (*DatabaseRepository, error) {
 	return &DatabaseRepository {
 		db: db,
 	}, nil
+}
+
+func (db *DatabaseRepository) GetLeaderboard(leaderboardId int) (leaderboard *models.Leaderboard, err error) {
+	rows, err := db.db.Query("SELECT * FROM ?", leaderboardId)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	leaderboard = &models.Leaderboard{
+		ID:         leaderboardId,
+		Entries:    []*models.Entry{},
+	}
+
+	for rows.Next() {
+		entry := &models.Entry{
+			LeaderboardId: leaderboardId,
+		}
+		err =  rows.Scan(&entry)
+		if err != nil {
+			return nil, err
+		}
+
+		leaderboard.Entries = append(leaderboard.Entries, entry)
+	}
+	return leaderboard, err
 }
 
 func (db *DatabaseRepository) GetEntry(leaderboardId int, steamId uint64) (entry *models.Entry, err error) {
