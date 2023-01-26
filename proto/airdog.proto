@@ -5,7 +5,7 @@ package main;
 option go_package = "./pb";
 
 service Airdog {
-    rpc PushEntries(stream PushEntriesReq) returns (PushEntriesResp);
+    rpc UpdateLeaderboard(UpdateLeaderboardReq) returns (UpdateLeaderboardResp);
 }
 
 message Entry {
@@ -14,9 +14,9 @@ message Entry {
     int32 time_ms = 3;
 }
 
-message PushEntriesReq {
+message UpdateLeaderboardReq {
     int32 leaderboard_id = 1;
     repeated Entry entry = 2;
 }
 
-message PushEntriesResp {}
+message UpdateLeaderboardResp {}

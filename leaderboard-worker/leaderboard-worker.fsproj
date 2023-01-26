@@ -1,10 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk.Worker">
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
-
-    <!-- This is specifically to keep my LSP server from -->
-      <!-- Annoying me with undefined proto modules :/ -->
-    <NoWarn>39</NoWarn>
     <UserSecretsId>dotnet-leaderboard_worker-0674db0a-ee13-4700-8cc7-2572d01e1168</UserSecretsId>
     <RootNamespace>leaderboard_worker</RootNamespace>
   </PropertyGroup>
