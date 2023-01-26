@@ -10,10 +10,10 @@ import (
 
 type HttpController struct {
 	app *fiber.App
-	service *service.AirdogService
+	service service.Servicer
 }
 
-func CreateHttpController(service *service.AirdogService) (*HttpController, error) {
+func CreateHttpController(service service.Servicer) (*HttpController, error) {
 	app := fiber.New(fiber.Config {
 		DisableStartupMessage: true})
 

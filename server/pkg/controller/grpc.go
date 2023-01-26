@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"airdog/pkg/models"
 	"airdog/pkg/pb"
 	"airdog/pkg/service"
 	"context"
@@ -12,12 +13,12 @@ import (
 )
 
 type GrpcServer struct {
-	service *service.AirdogService
+	service service.Servicer
 	server *grpc.Server
     pb.UnimplementedAirdogServer
 }
 
-func CreateGrpcServer(service *service.AirdogService) (*GrpcServer, error) {
+func CreateGrpcServer(service service.Servicer) (*GrpcServer, error) {
 	server := grpc.NewServer()
 
 	s := &GrpcServer{
@@ -31,7 +32,25 @@ func CreateGrpcServer(service *service.AirdogService) (*GrpcServer, error) {
 }
 
 func (g *GrpcServer) UpdateLeaderboard(ctx context.Context, req *pb.UpdateLeaderboardReq) (*pb.UpdateLeaderboardResp, error) {
-	return &pb.UpdateLeaderboardResp{}, nil
+	leaderboard := &models.Leaderboard{
+		ID:         int(req.LeaderboardId),
+		Entries:    []*models.Entry{},
+	}
+
+	for _, entry := range req.Entry {
+		leaderboard.Entries = append(leaderboard.Entries, &models.Entry{
+			LeaderboardId: int(req.LeaderboardId),
+			SteamID:       entry.SteamId,
+			SteamRank:     int(entry.SteamRank),
+			Time:          int(entry.TimeMs),
+		})
+	}
+
+	leaderboard.EntryCount = len(leaderboard.Entries)
+
+	err := g.service.UpdateLeaderboard(leaderboard)
+
+	return &pb.UpdateLeaderboardResp{}, err
 }
 
 func (g *GrpcServer) Serve(port int) error {

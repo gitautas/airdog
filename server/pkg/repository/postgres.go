@@ -2,17 +2,20 @@ package repository
 
 import (
 	"airdog/pkg/models"
+	"context"
 	"database/sql"
 
 	_ "github.com/lib/pq"
 )
 
 type LeaderboardDatabaser interface {
-    GetLeaderboard(leaderboardId int) (leaderboard *models.Leaderboard, err error)
     GetEntry(leaderboardId int, steamId uint64) (entry *models.Entry, err error)
     AddEntry(entry *models.Entry) (err error)
     DeleteEntry(leaderboardId, steamId uint64) (err error)
 	UpdateEntry(entry *models.Entry) (err error)
+
+    GetLeaderboard(leaderboardId int) (leaderboard *models.Leaderboard, err error)
+	UpdateLeaderboard(leaderboard *models.Leaderboard) (err error)
 }
 
 type DatabaseRepository struct {
@@ -31,7 +34,7 @@ func CreateDBRepository(conn string) (*DatabaseRepository, error) {
 }
 
 func (db *DatabaseRepository) GetLeaderboard(leaderboardId int) (leaderboard *models.Leaderboard, err error) {
-	rows, err := db.db.Query("SELECT * FROM ?", leaderboardId)
+	rows, err := db.db.Query("SELECT * FROM leaderboards WHERE leaderboard_id = ?", leaderboardId)
 	if err != nil {
 		return nil, err
 	}
@@ -58,29 +61,48 @@ func (db *DatabaseRepository) GetLeaderboard(leaderboardId int) (leaderboard *mo
 }
 
 func (db *DatabaseRepository) GetEntry(leaderboardId int, steamId uint64) (entry *models.Entry, err error) {
-	row := db.db.QueryRow("SELECT * FROM ? WHERE steam_id = ?", leaderboardId, steamId)
+	row := db.db.QueryRow("SELECT * FROM leaderboards WHERE leaderboard_id = ? AND steam_id = ?", leaderboardId, steamId)
 	err = row.Scan(&entry)
 	return entry, err
 }
 
 func (db *DatabaseRepository) AddEntry(entry *models.Entry) (err error) {
-	_, err = db.db.Exec("INSERT INTO ?(steam_id, steam_rank, time, created_at)" +
-		"VALUES(?, ?, ?, NOW())", entry.LeaderboardId,
+	_, err = db.db.Exec("INSERT INTO leaderboards(leaderboard_id, steam_id, steam_rank, time, created_at)" +
+		"VALUES(?, ?, ?, ?, NOW())", entry.LeaderboardId,
 		entry.SteamID, entry.SteamRank, entry.Time)
 
 	return err
 }
 
 func (db *DatabaseRepository) DeleteEntry(leaderboardId, steamId uint64) (err error) {
-	_, err = db.db.Exec("DELETE * FROM ? WHERE steam_id = ?", leaderboardId, steamId)
+	_, err = db.db.Exec("DELETE * FROM leaderboards WHERE leaderboard_id = ? AND steam_id = ?", leaderboardId, steamId)
 
 	return err
 }
 
 func (db *DatabaseRepository) UpdateEntry(entry *models.Entry) (err error) {
-	_, err = db.db.Exec("UPDATE ? SET(steam_id, steam_rank, time, updated_at)" +
-		"VALUES(?, ?, ?, NOW())", entry.LeaderboardId,
-		entry.SteamID, entry.SteamRank, entry.Time)
+	_, err = db.db.Exec("UPDATE leaderboards SET(steam_id, steam_rank, time, updated_at)" +
+		"VALUES(?, ?, ?, NOW()) WHERE leaderboard_id = ?",
+		entry.SteamID, entry.SteamRank, entry.Time, entry.LeaderboardId)
 
 	return err
+}
+
+func (db *DatabaseRepository) UpdateLeaderboard(leaderboard *models.Leaderboard) (err error) {
+	tx, err := db.db.BeginTx(context.Background(), nil)
+	if err != nil {
+		return err
+	}
+
+	_, err = db.db.Exec("DELETE * FROM leaderboards WHERE leaderboard_id = ?", leaderboard.ID)
+
+	for _, entry := range leaderboard.Entries {
+		err = db.AddEntry(entry)
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+	}
+
+	return tx.Commit()
 }
