@@ -10,6 +10,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Include="Source/Generated/Airdog.fs" />
     <Compile Include="Source/AccountProvider.fs" />
     <Compile Include="Source/SteamLeaderboardHelper.fs" />
     <Compile Include="Source/Worker.fs" />
