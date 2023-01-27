@@ -67,7 +67,7 @@ func (db *DatabaseRepository) GetEntry(leaderboardId int, steamId uint64) (entry
 }
 
 func (db *DatabaseRepository) AddEntry(entry *models.Entry) (err error) {
-	_, err = db.db.Exec("INSERT INTO leaderboards(leaderboard_id, steam_id, steam_rank, time, created_at)" +
+	_, err = db.db.Exec("INSERT INTO leaderboards(leaderboard_id, steam_id, steam_rank, time_ms, created_at)" +
 		"VALUES(?, ?, ?, ?, NOW())", entry.LeaderboardId,
 		entry.SteamID, entry.SteamRank, entry.Time)
 
@@ -81,8 +81,8 @@ func (db *DatabaseRepository) DeleteEntry(leaderboardId, steamId uint64) (err er
 }
 
 func (db *DatabaseRepository) UpdateEntry(entry *models.Entry) (err error) {
-	_, err = db.db.Exec("UPDATE leaderboards SET(steam_id, steam_rank, time, updated_at)" +
-		"VALUES(?, ?, ?, NOW()) WHERE leaderboard_id = ?",
+	_, err = db.db.Exec("UPDATE leaderboards SET(steam_id, steam_rank, time_ms, updated_at)" +
+		"VALUES(?, ?, ?, NOW()) WHERE id = ?",
 		entry.SteamID, entry.SteamRank, entry.Time, entry.LeaderboardId)
 
 	return err
@@ -94,7 +94,7 @@ func (db *DatabaseRepository) UpdateLeaderboard(leaderboard *models.Leaderboard)
 		return err
 	}
 
-	_, err = db.db.Exec("DELETE * FROM leaderboards WHERE leaderboard_id = ?", leaderboard.ID)
+	_, err = db.db.Exec("DELETE * FROM leaderboards WHERE id = ?", leaderboard.ID)
 
 	for _, entry := range leaderboard.Entries {
 		err = db.AddEntry(entry)
