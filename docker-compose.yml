@@ -6,10 +6,10 @@ services:
     build: ./server
     ports:
       - "8080:80" # Only expose the HTTP API
-  discord_bot:
-    build: ./discord-bot
-    ports:
-      - "3000:3000"
+  # discord_bot:
+  #   build: ./discord-bot
+  #   ports:
+  #     - "3000:3000"
   postgres:
     image: "postgres:15.1-alpine"
     restart: always
@@ -19,5 +19,4 @@ services:
     ports:
       - '5432:5432'
     volumes:
-      - db:/var/lib/postgresql/data
-      - ./db/init.sql:/docker-entrypoint-initdb.d/create_tables.sql
+      - ./leaderboards.sql:/docker-entrypoint-initdb.d/init.sql
