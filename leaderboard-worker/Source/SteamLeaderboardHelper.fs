@@ -9,6 +9,7 @@ open SteamKit2
 
 type Leaderboard =
     { ID: int
+      LevelId: string
       Entries: ReadOnlyCollection<SteamUserStats.LeaderboardEntriesCallback.LeaderboardEntry> }
 
 type SteamLeaderboardHelper(account: Account, levelFile: string, ct: CancellationToken) =
@@ -52,6 +53,16 @@ type SteamLeaderboardHelper(account: Account, levelFile: string, ct: Cancellatio
                 manager.RunWaitCallbacks(TimeSpan.FromSeconds(1))
         }
 
+    let retry(f, wait_ms: int, message) =
+        try f()
+        with ex ->
+            logger.LogWarning(message + " with exception {ex}, retrying..")
+            Thread.Sleep(wait_ms)
+            try f()
+            with ex ->
+                logger.LogError(message + " with exception {ex}.")
+                raise ex
+
     do
         manager.Subscribe<SteamClient.ConnectedCallback> onConnected |> ignore
         manager.Subscribe<SteamClient.DisconnectedCallback> onDisconnected |> ignore
@@ -78,34 +89,20 @@ type SteamLeaderboardHelper(account: Account, levelFile: string, ct: Cancellatio
 
     member _.GetEntries =
         levels
-        |> Array.Parallel.map (fun levelId ->
-            let leaderboard =
-                userStats.FindLeaderboard(neonWhiteSteamid, levelId).GetAwaiter().GetResult
-                |> (fun f ->
-                        try f()
-                        with ex ->
-                            logger.LogWarning $"Failed to find leaderboard for level {levelId}: {ex}, retrying..."
-                            Thread.Sleep(2000)
-                            try f()
-                            with ex ->
-                                logger.LogError $"Failed to find leaderboard for level {levelId}: {ex}."
-                                raise ex)
+        |> Array.map (fun levelId -> // Cannot parallelize this since it seems that Steam doesn't allow too many connections at once.
+            let leaderboardInfo =
+                retry(userStats.FindLeaderboard(neonWhiteSteamid, levelId).GetAwaiter().GetResult, 2000, $"Failed to find leaderboard for level {levelId}: ex")
 
-            let result = userStats.GetLeaderboardEntries(
+            let leaderboard =
+                retry(userStats.GetLeaderboardEntries(
                     neonWhiteSteamid,
-                    leaderboard.ID,
+                    leaderboardInfo.ID,
                     0,
-                    leaderboard.EntryCount,
-                    ELeaderboardDataRequest.Global).GetAwaiter().GetResult
-            try result() |> (fun (r) -> {ID = leaderboard.ID; Entries = r.Entries})
-            with ex ->
-                logger.LogWarning $"Failed to process entries for leaderboard {leaderboard.ID} with exception {ex}, retrying..."
-                try
-                    Thread.Sleep(2000)
-                    result() |> (fun (r) -> {ID = leaderboard.ID; Entries = r.Entries})
-                with ex ->
-                    logger.LogError $"Failed to process entries for leaderboard {leaderboard.ID} with exception {ex}."
-                    raise ex)
+                    leaderboardInfo.EntryCount,
+                    ELeaderboardDataRequest.Global).GetAwaiter().GetResult, 2000, $"Failed to process entries for leaderboard {leaderboardInfo.ID}")
+
+            { ID = leaderboardInfo.ID; LevelId = levelId; Entries = leaderboard.Entries })
+
 
     // interface IDisposable with
     //     member this.Dispose() =

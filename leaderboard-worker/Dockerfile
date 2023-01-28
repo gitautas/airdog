@@ -5,9 +5,9 @@ WORKDIR /build
 COPY ./*.fsproj .
 RUN dotnet restore
 COPY . .
-RUN dotnet publish -c Release -o leaderboard_worker --no-restore
+RUN dotnet build --configuration Release -o out
 
 FROM mcr.microsoft.com/dotnet/runtime:6.0
 WORKDIR /app
-COPY --from=build /app .
-ENTRYPOINT ["dotnet", "dotnetapp.dll"]
+COPY --from=build /build .
+ENTRYPOINT ["/app/out/leaderboard-worker"]

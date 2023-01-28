@@ -1,13 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk.Worker">
+
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
-    <UserSecretsId>dotnet-leaderboard_worker-0674db0a-ee13-4700-8cc7-2572d01e1168</UserSecretsId>
+    <UserSecretsId>dotnet-leaderboard_worker-02d7d4e2-e474-4445-af39-02c85524da5e</UserSecretsId>
     <RootNamespace>leaderboard_worker</RootNamespace>
   </PropertyGroup>
-
-  <ItemGroup>
-    <Protobuf Include="../proto/airdog.proto" GrpcServices="Client" link="airdog.proto" />
-  </ItemGroup>
 
   <ItemGroup>
     <Compile Include="Source/Generated/Airdog.fs" />
@@ -23,7 +20,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.Extensions.Hosting" Version="7.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="6.0.1" />
     <PackageReference Include="SteamKit2" Version="2.4.1" />
   </ItemGroup>
 </Project>
