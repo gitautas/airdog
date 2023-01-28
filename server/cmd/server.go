@@ -11,11 +11,11 @@ import (
 func main() {
 	log.Println("Starting Airdog server...")
 
-	dbUser := ""
-	dbPass := ""
-	dbPort := 5234
+	dbUser := "postgres"
+	dbPass := "airdog"
+	dbPort := 5432
 
-	conn := fmt.Sprint("postgresql://%s:%s@localhost:%i/airdog", dbUser, dbPass, dbPort)
+	conn := fmt.Sprint("postgresql://%s:%s@postgres:%i/airdog", dbUser, dbPass, dbPort)
 
 	repo, err := repository.CreateDBRepository(conn)
 	if err != nil {

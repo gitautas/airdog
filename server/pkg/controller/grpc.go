@@ -37,10 +37,11 @@ func (g *GrpcServer) UpdateLeaderboard(ctx context.Context, req *pb.UpdateLeader
 		Entries:    []*models.Entry{},
 	}
 
-	for _, entry := range req.Entry {
+	for _, entry := range req.Entries {
 		leaderboard.Entries = append(leaderboard.Entries, &models.Entry{
-			LeaderboardId: int(req.LeaderboardId),
 			SteamID:       entry.SteamId,
+			LeaderboardId: int(req.LeaderboardId),
+			LevelId:       req.LevelId,
 			SteamRank:     int(entry.SteamRank),
 			Time:          int(entry.TimeMs),
 		})
